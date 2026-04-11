@@ -34,7 +34,7 @@ openvpn3-openwrt/
 
 ```bash
 # 1. 在任意位置 clone 本项目（libasio 已包含在项目内）
-git clone https://github.com/OpenVPN/openvpn3-openwrt ~/openvpn3-openwrt
+git clone https://github.com/Yepday/OpenVPN3-OpenWRT ~/openvpn3-openwrt
 
 # 2. 将软件包软链接到 SDK（不要直接在 SDK 内 clone，避免被 feeds 污染）
 cd <SDK_DIR>
@@ -174,7 +174,7 @@ openvpn3-openwrt/
 
 ```bash
 # 1. Clone this repo anywhere (libasio is included inside)
-git clone https://github.com/OpenVPN/openvpn3-openwrt ~/openvpn3-openwrt
+git clone https://github.com/Yepday/OpenVPN3-OpenWRT ~/openvpn3-openwrt
 
 # 2. Symlink packages into the SDK (don't clone directly inside SDK — feeds may overwrite it)
 cd <SDK_DIR>
