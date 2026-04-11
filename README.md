@@ -34,12 +34,14 @@ openvpn3-openwrt/
 
 ```bash
 # 1. 在任意位置 clone 本项目（libasio 已包含在项目内）
-git clone https://github.com/Yepday/OpenVPN3-OpenWRT ~/openvpn3-openwrt
+git clone https://github.com/Yepday/OpenVPN3-OpenWrt
+cd OpenVPN3-OpenWrt
+REPO_DIR=$(pwd)
 
 # 2. 将软件包软链接到 SDK（不要直接在 SDK 内 clone，避免被 feeds 污染）
 cd <SDK_DIR>
-ln -s ~/openvpn3-openwrt/libasio  package/libasio
-ln -s ~/openvpn3-openwrt/openvpn3 package/openvpn3
+ln -s $REPO_DIR/libasio  package/libasio
+ln -s $REPO_DIR/openvpn3 package/openvpn3
 
 # 2. 更新 feeds 并安装依赖
 ./scripts/feeds update -a
