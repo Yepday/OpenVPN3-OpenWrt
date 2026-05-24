@@ -2,7 +2,7 @@
 
 适用于 OpenWrt 的 OpenVPN 3 客户端守护进程，提供 procd 服务管理、ubus 控制接口和基于 UCI 的配置。
 
-已在 OpenWrt 23.05.x（x86_64 QEMU）上测试。rk3399（aarch64）平台支持待后续实现。
+已在 OpenWrt 23.05.x（x86_64 QEMU）和 rk3399（aarch64）实体机上验证通过。
 
 ## 目录结构
 
@@ -29,6 +29,9 @@ openvpn3-openwrt/
 
 - OpenWrt SDK 23.05.x（x86_64 或 aarch64）
 - git（编译时用于克隆 openvpn3-core）
+
+> **rk3399 / Orange Pi 4 用户**：可直接使用作者维护的 OpenWrt 构建树，已针对 RK3399 平台适配：
+> https://github.com/Yepday/openwrt-orangepi4
 
 ### 步骤
 
@@ -70,7 +73,7 @@ opkg install /tmp/openvpn3-openwrt_*.ipk
 
 QEMU 测试时不使用 opkg（手动解包）：
 
-> **注意**：当前测试环境使用 x86_64 OpenWrt SDK 编译，运行于直接下载的 x86_64 OpenWrt 官方镜像（非 SDK 自行编译的镜像），两者 libc/内核版本可能存在差异，导致 `opkg` 安装失败。rk3399 平台上将进行完整验证。
+> **注意**：x86_64 SDK 编译的包在官方预编译镜像上可能因 libc/内核版本差异导致 `opkg` 失败，手动解包可绕过此问题。rk3399（aarch64 full tree 编译）上 `opkg install` 正常工作。
 
 ```bash
 cd /tmp
@@ -144,7 +147,7 @@ AGPL-3.0-only。参见 [openvpn3-core 许可证](https://github.com/OpenVPN/open
 
 OpenVPN 3 client daemon for OpenWrt. Provides procd service management, ubus control interface, and UCI-based configuration.
 
-Tested on OpenWrt 23.05.x (x86_64 QEMU). rk3399 (aarch64) platform support is planned.
+Tested on OpenWrt 23.05.x (x86_64 QEMU) and rk3399 (aarch64) hardware.
 
 ## Directory structure
 
@@ -171,6 +174,9 @@ openvpn3-openwrt/
 
 - OpenWrt SDK 23.05.x (x86_64 or aarch64)
 - git (to clone openvpn3-core at build time)
+
+> **rk3399 / Orange Pi 4 users**: You can use the author's OpenWrt build tree, already adapted for the RK3399 platform:
+> https://github.com/Yepday/openwrt-orangepi4
 
 ### Steps
 
@@ -212,7 +218,7 @@ opkg install /tmp/openvpn3-openwrt_*.ipk
 
 For QEMU testing without opkg (manual unpack):
 
-> **Note**: Current testing uses a package built with the x86_64 OpenWrt SDK installed into a pre-built official x86_64 OpenWrt image (not an image produced by the same SDK). Mismatched libc/kernel versions between the two may cause `opkg` to fail. Full validation will be done on the rk3399 platform.
+> **Note**: x86_64 SDK packages may fail `opkg install` on pre-built official images due to libc/kernel version mismatch. Manual unpack works around this. On rk3399 (aarch64 full tree build), `opkg install` works normally.
 
 ```bash
 cd /tmp
