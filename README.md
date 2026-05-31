@@ -13,7 +13,6 @@ openvpn3-openwrt/
 │   ├── CMakeLists.txt
 │   ├── src/
 │   │   ├── main.cpp
-│   │   ├── tun_openwrt.cpp / .hpp
 │   │   ├── ubus_interface.cpp / .hpp
 │   │   └── uci_config.cpp / .hpp
 │   └── files/
@@ -86,11 +85,13 @@ tar xzf data.tar.gz -C /
 ### 通过 UCI + procd（推荐）
 
 ```bash
-# 编辑 /etc/config/openvpn3 — 设置 VPN 的 server/port/proto
-uci set openvpn3.client.server='your.vpn.server'
-uci set openvpn3.client.port='1194'
-uci set openvpn3.client.proto='udp'
+# 将 .ovpn 文件放到 /etc/openvpn3/
+cp client.ovpn /etc/openvpn3/client.ovpn
+
+# 编辑 /etc/config/openvpn3 — 指定 .ovpn 文件路径并启用
+uci set openvpn3.client=vpn
 uci set openvpn3.client.enabled='1'
+uci set openvpn3.client.config='/etc/openvpn3/client.ovpn'
 uci commit openvpn3
 
 # 启动
@@ -125,13 +126,13 @@ openvpn3d /tmp/client.ovpn
 
 ```
 config vpn 'client'
-    option enabled    '0'
-    option server     ''
-    option port       '1194'
-    option proto      'udp'
-    option config     ''        # .ovpn 文件路径（可选）
-    option log_level  '3'
+    option enabled    '1'          # 1=开机自动启动，0=禁用
+    option config     '/etc/openvpn3/client.ovpn'  # .ovpn 文件路径（必填）
+    option dev        'tun0'       # 可选：强制指定 tun 接口名
+    option log_level  '3'          # 可选：0=fatal 1=error 2=warn 3=info 4=debug
 ```
+
+server、port、proto 等连接参数在 `.ovpn` 文件内配置，UCI 不管理这些字段。
 
 ## 已知问题
 
@@ -158,7 +159,6 @@ openvpn3-openwrt/
 │   ├── CMakeLists.txt
 │   ├── src/
 │   │   ├── main.cpp
-│   │   ├── tun_openwrt.cpp / .hpp
 │   │   ├── ubus_interface.cpp / .hpp
 │   │   └── uci_config.cpp / .hpp
 │   └── files/
@@ -231,11 +231,13 @@ tar xzf data.tar.gz -C /
 ### Via UCI + procd (recommended)
 
 ```bash
-# Edit /etc/config/openvpn3 — set server/port/proto for your VPN
-uci set openvpn3.client.server='your.vpn.server'
-uci set openvpn3.client.port='1194'
-uci set openvpn3.client.proto='udp'
+# Place the .ovpn file in /etc/openvpn3/
+cp client.ovpn /etc/openvpn3/client.ovpn
+
+# Edit /etc/config/openvpn3 — point to the .ovpn file and enable
+uci set openvpn3.client=vpn
 uci set openvpn3.client.enabled='1'
+uci set openvpn3.client.config='/etc/openvpn3/client.ovpn'
 uci commit openvpn3
 
 # Start
@@ -270,13 +272,13 @@ openvpn3d /tmp/client.ovpn
 
 ```
 config vpn 'client'
-    option enabled    '0'
-    option server     ''
-    option port       '1194'
-    option proto      'udp'
-    option config     ''        # path to .ovpn file (optional)
-    option log_level  '3'
+    option enabled    '1'          # 1=auto-start on boot, 0=disabled
+    option config     '/etc/openvpn3/client.ovpn'  # path to .ovpn file (required)
+    option dev        'tun0'       # optional: force tun interface name
+    option log_level  '3'          # optional: 0=fatal 1=error 2=warn 3=info 4=debug
 ```
+
+Connection parameters (server, port, proto, etc.) are configured inside the `.ovpn` file — UCI does not manage these fields.
 
 ## Known issues
 

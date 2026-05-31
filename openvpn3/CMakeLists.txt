@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # OpenVPN3 core is header-only; passed in from OpenWrt Makefile via
 # -DOPENVPN3_CORE_DIR=$(CURDIR)/../../openvpn3
 if(NOT DEFINED OPENVPN3_CORE_DIR)
-    set(OPENVPN3_CORE_DIR "${CMAKE_SOURCE_DIR}/../../openvpn3")
+    set(OPENVPN3_CORE_DIR "${CMAKE_SOURCE_DIR}/../openvpn3-core/openvpn3")
 endif()
 message(STATUS "openvpn3-core dir: ${OPENVPN3_CORE_DIR}")
 
@@ -38,7 +38,6 @@ message(STATUS "asio include dir: ${ASIO_INCLUDE_DIR}")
 
 add_executable(openvpn3d
     src/main.cpp
-    src/tun_openwrt.cpp
     src/ubus_interface.cpp
     src/uci_config.cpp
     # openvpn3-core non-header-only sources
