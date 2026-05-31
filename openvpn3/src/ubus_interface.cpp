@@ -24,7 +24,6 @@
 #include <client/ovpncli.cpp>
 #include <openvpn/common/exception.hpp>
 #include <openvpn/ssl/sslchoose.hpp>
-#include "tun_openwrt.hpp"
 
 #include "ubus_interface.hpp"
 #include "uci_config.hpp"
@@ -65,36 +64,6 @@ public:
     ManagedClient(VpnManager& mgr, const std::string& name)
         : mgr_(mgr), name_(name) {}
 
-    // TunBuilderBase — delegate to tun_
-    bool tun_builder_new() override
-        { return tun_.tun_builder_new(); }
-    bool tun_builder_set_remote_address(const std::string& a, bool ipv6) override
-        { return tun_.tun_builder_set_remote_address(a, ipv6); }
-    bool tun_builder_add_address(const std::string& a, int pl,
-                                 const std::string& gw, bool ipv6, bool net30) override
-        { return tun_.tun_builder_add_address(a, pl, gw, ipv6, net30); }
-    bool tun_builder_reroute_gw(bool ipv4, bool ipv6, unsigned int flags) override
-        { return tun_.tun_builder_reroute_gw(ipv4, ipv6, flags); }
-    bool tun_builder_add_route(const std::string& a, int pl, int metric, bool ipv6) override
-        { return tun_.tun_builder_add_route(a, pl, metric, ipv6); }
-    bool tun_builder_exclude_route(const std::string& a, int pl, int metric, bool ipv6) override
-        { return tun_.tun_builder_exclude_route(a, pl, metric, ipv6); }
-    bool tun_builder_set_dns_options(const DnsOptions& dns) override
-        { return tun_.tun_builder_set_dns_options(dns); }
-    bool tun_builder_set_mtu(int mtu) override
-        { return tun_.tun_builder_set_mtu(mtu); }
-    bool tun_builder_set_session_name(const std::string& n) override
-        { return tun_.tun_builder_set_session_name(n); }
-    int tun_builder_establish() override
-        { return tun_.tun_builder_establish(); }
-    bool tun_builder_persist() override
-        { return false; }
-    void tun_builder_teardown(bool d) override
-        { tun_.tun_builder_teardown(d); }
-
-    bool socket_protect(openvpn_io::detail::socket_type, std::string remote, bool ipv6) override
-        { return tun_.add_bypass_route(remote, ipv6); }
-
     void event(const ClientAPI::Event& ev) override
     {
         std::cout << "[" << name_ << "] EVENT: " << ev.name;
@@ -126,7 +95,6 @@ public:
 private:
     VpnManager&          mgr_;
     std::string          name_;
-    OpenWrtTunBuilder    tun_;
 };
 
 // ============================================================================
@@ -406,7 +374,7 @@ int UbusInterface::handle_start(struct ubus_context* ctx, struct ubus_object*,
     struct blob_attr* tb[__MAX];
     blobmsg_parse(start_policy, __MAX, tb, blob_data(msg), blob_len(msg));
 
-    if (!tb[INSTANCE] || !tb[CONFIG]) {
+    if (!tb[INSTANCE] && !tb[CONFIG]) {
         struct blob_buf b = {};
         blob_buf_init(&b, 0);
         blobmsg_add_string(&b, "error", "missing 'instance' or 'config'");
@@ -415,8 +383,18 @@ int UbusInterface::handle_start(struct ubus_context* ctx, struct ubus_object*,
         return UBUS_STATUS_INVALID_ARGUMENT;
     }
 
-    std::string name   = blobmsg_get_string(tb[INSTANCE]);
-    std::string config = blobmsg_get_string(tb[CONFIG]);
+    std::string config = tb[CONFIG] ? blobmsg_get_string(tb[CONFIG]) : "";
+    // derive instance name from config filename if not provided
+    std::string name;
+    if (tb[INSTANCE]) {
+        name = blobmsg_get_string(tb[INSTANCE]);
+    } else {
+        name = std::filesystem::path(config).stem().string();
+        if (name.empty()) name = "default";
+    }
+    // derive config path from imported profile if only instance given
+    if (config.empty())
+        config = "/etc/openvpn3/" + name + ".ovpn";
     std::string user   = tb[USERNAME] ? blobmsg_get_string(tb[USERNAME]) : "";
     std::string pass   = tb[PASSWORD] ? blobmsg_get_string(tb[PASSWORD]) : "";
 

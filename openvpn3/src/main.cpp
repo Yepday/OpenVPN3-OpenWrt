@@ -2,8 +2,7 @@
 //
 // Stage 1: eval_config smoke test
 // Stage 2: full connect() with thread, signal handling
-// Stage 3: TunBuilder via tun_openwrt.cpp
-// Stage 4: daemon mode — uloop + ubus, multi-instance via VpnManager
+// Stage 3: daemon mode — uloop + ubus, multi-instance via VpnManager
 //
 // Usage:
 //   openvpn3d                          # daemon mode (ubus-driven)
